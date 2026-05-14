@@ -1,0 +1,265 @@
+/* ProductCard.css - VPP Product Card Styles */
+
+.product-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.product-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.product-card.selected {
+  border: 2px solid #3b82f6;
+  background: #f0f9ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.product-header {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #f9fafb;
+}
+
+.product-badge-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.product-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.product-badge.recommended {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #ffffff;
+}
+
+.product-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.product-plan {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.product-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product-provider {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.product-description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.product-pricing {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.price-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.price-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.price-value.retail {
+  font-size: 14px;
+  text-decoration: line-through;
+  color: #d1d5db;
+}
+
+.product-term {
+  font-size: 12px;
+  color: #6b7280;
+  padding: 8px 0;
+  border-top: 1px solid #f3f4f6;
+}
+
+.product-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 12px;
+}
+
+.benefit-item {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.benefit-icon {
+  color: #10b981;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.product-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f3f4f6;
+  background: #f9fafb;
+  display: flex;
+  gap: 8px;
+}
+
+.select-button {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  white-space: nowrap;
+}
+
+.select-button.add {
+  background: #3b82f6;
+  color: white;
+}
+
+.select-button.add:hover {
+  background: #2563eb;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.select-button.remove {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.select-button.remove:hover {
+  background: #fecaca;
+}
+
+.learn-more-button {
+  padding: 10px 12px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.learn-more-button:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.expandable-content {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  animation: slideDownFade 0.3s ease-out;
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.expandable-content h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.expandable-content p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.expandable-content ul {
+  margin-left: 16px;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .product-card {
+    border-radius: 8px;
+  }
+
+  .product-pricing {
+    grid-template-columns: 1fr;
+  }
+
+  .product-body {
+    padding: 12px;
+  }
+
+  .product-footer {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .select-button,
+  .learn-more-button {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
