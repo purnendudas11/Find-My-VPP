@@ -1,17 +1,18 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import Chat from './components/Chat';
 import Recommendations from './components/Recommendations';
 import './App.css';
 
-// Initial questions for the questionnaire
-const INITIAL_QUESTIONS = [
-  "Welcome! Let's find the perfect Vehicle Protection Products for your vehicle. First, what type of vehicle do you own? (e.g., sedan, SUV, truck)",
-  "Great! What's your typical monthly budget for protection plans?",
-  "Is your vehicle new or used?",
-  "What's your preferred monthly payment range?",
-  "How long do you plan to keep or own this vehicle?",
-  "Can you describe your typical driving habits? (e.g., daily commute, weekend trips, highway miles)"
-];
+import {
+  QUESTIONS,
+  REQUIRED_FIELDS
+} from './config/questions';
+
+import {
+  mergeAnswers,
+  getMissingFields,
+  getNextQuestion
+} from './utils/intakeHelpers';
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -19,20 +20,22 @@ function App() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const questionIndexRef = useRef(0);
+  const [answers, setAnswers] = useState({});
+  const [hasGeneratedFirstRecommendation, setHasGeneratedFirstRecommendation] = useState(false);
 
   // Add initial greeting message when component mounts
   React.useEffect(() => {
+    const firstQuestion = getNextQuestion({}, REQUIRED_FIELDS, QUESTIONS);
     const greeting = {
-      text: INITIAL_QUESTIONS[0],
+      text: `Welcome! Let's find the perfect Vehicle Protection Products for your vehicle. ${firstQuestion.question}`,
       isUser: false,
       timestamp: new Date()
     };
     setMessages([greeting]);
   }, []);
 
-  // Send message to API
-  const sendMessageToAPI = useCallback(async (messageText) => {
+  // Send message to API with all collected responses
+  const sendMessageToAPI = useCallback(async () => {
     try {
       setError(null);
       setIsLoading(true);
@@ -63,6 +66,20 @@ function App() {
         };
       };
 
+      // Compile all answers into a comprehensive prompt
+      const compiledPrompt = `Based on the following customer information, please provide Vehicle Protection Product recommendations:
+
+1. Vehicle Type: ${answers.vehicleType || 'Not specified'}
+2. Monthly Budget: ${answers.monthlyBudget || 'Not specified'}
+3. Vehicle Status: ${answers.vehicleCondition || 'Not specified'}
+4. Preferred Monthly Payment: ${answers.paymentRange || 'Not specified'}
+5. Ownership Duration: ${answers.ownershipDuration || 'Not specified'}
+6. Driving Habits: ${answers.drivingHabits || 'Not specified'}
+
+Please analyze this customer profile and recommend appropriate VPP products that match their needs and budget.`;
+
+      console.log('Compiled Prompt:', compiledPrompt);
+
       // Make API call
       const response = await fetch('https://kns3hffcua.execute-api.us-east-1.amazonaws.com/vpp', {
         method: 'POST',
@@ -70,7 +87,7 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: messageText
+          message: compiledPrompt
         })
       });
 
@@ -113,24 +130,6 @@ function App() {
         }
       }
 
-      // Add follow-up question to chat if available
-      if (responseData.follow_up_question && questionIndexRef.current < INITIAL_QUESTIONS.length - 1) {
-        questionIndexRef.current += 1;
-        const nextQuestion = {
-          text: INITIAL_QUESTIONS[questionIndexRef.current],
-          isUser: false,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, nextQuestion]);
-      } else if (responseData.follow_up_question) {
-        const followUp = {
-          text: responseData.follow_up_question,
-          isUser: false,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, followUp]);
-      }
-
       setIsLoading(false);
     } catch (err) {
       console.error('API Error:', err);
@@ -145,7 +144,7 @@ function App() {
       };
       setMessages(prev => [...prev, errorMessage]);
     }
-  }, []);
+  }, [answers]);
 
   // Handle user message
   const handleSendMessage = useCallback((messageText) => {
@@ -157,9 +156,46 @@ function App() {
     };
     setMessages(prev => [...prev, userMessage]);
 
-    // Send to API
-    sendMessageToAPI(messageText);
-  }, [sendMessageToAPI]);
+    // Get the current missing field to determine which question was just answered
+    const currentMissing = getMissingFields(answers, REQUIRED_FIELDS);
+    const currentField = currentMissing[0];
+
+    // Store the answer for the current field
+    const updatedAnswers = mergeAnswers(answers, {
+      [currentField]: messageText
+    });
+    setAnswers(updatedAnswers);
+
+    // Check if all required fields are now filled
+    const remainingMissing = getMissingFields(updatedAnswers, REQUIRED_FIELDS);
+
+    if (remainingMissing.length === 0 && !hasGeneratedFirstRecommendation) {
+      // All questions answered - send to API
+      setHasGeneratedFirstRecommendation(true);
+      
+      // Add confirmation message
+      const confirmMessage = {
+        text: "Thank you for providing all the information! Let me analyze your preferences and find the perfect Vehicle Protection Products for you...",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, confirmMessage]);
+      
+      // Send to API with updated answers
+      sendMessageToAPI();
+    } else if (remainingMissing.length > 0) {
+      // Ask the next missing question
+      const nextQuestion = getNextQuestion(updatedAnswers, REQUIRED_FIELDS, QUESTIONS);
+      if (nextQuestion) {
+        const questionMessage = {
+          text: nextQuestion.question,
+          isUser: false,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, questionMessage]);
+      }
+    }
+  }, [answers, hasGeneratedFirstRecommendation, sendMessageToAPI]);
 
   // Handle product selection
   const handleSelectProduct = useCallback((product) => {
