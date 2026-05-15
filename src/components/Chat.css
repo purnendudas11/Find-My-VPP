@@ -1,0 +1,25 @@
+/* Chat.css - Chat Component Specific Styles */
+
+/* These styles are handled in App.css for the main chat layout
+   This file is kept for future component-specific customizations
+*/
+
+.chat-section {
+  /* Primary styling defined in App.css */
+}
+
+.chat-header {
+  /* Primary styling defined in App.css */
+}
+
+.messages-container {
+  /* Primary styling defined in App.css */
+}
+
+.chat-empty-state {
+  /* Primary styling defined in App.css */
+}
+
+.message-input-form {
+  /* Primary styling defined in App.css */
+}

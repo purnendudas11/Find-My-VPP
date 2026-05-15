@@ -44,7 +44,7 @@ const Chat = ({ messages, isLoading, onSendMessage }) => {
               <ChatMessage 
                 key={idx} 
                 message={msg} 
-                isUser={msg.isUser}
+                isUser={msg.type === 'user'}
               />
             ))}
             {isLoading && <TypingIndicator />}
